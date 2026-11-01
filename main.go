@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/genai"
@@ -34,29 +32,8 @@ func main() {
 		Goal:       "1년 안에 공공기관 IT직렬로 입사 목표",
 	}
 
-	// 사용자 입력을 JSON 변환 후 <profile> 태그로 감싸기
-	b, err := json.Marshal(profile)
-	if err != nil {
-		panic(err)
-	}
-	user := "<profile>\n" + string(b) + "\n</profile>"
-
-	// LLM 모델 호출
-	out, err := llm.Generate(ctx, systemPrompt, user)
-	if err != nil {
-		panic(err)
-	}
-
-	// 코드블록 파싱
-	out = strings.TrimSpace(out)
-	out = strings.TrimPrefix(out, "```json")
-	out = strings.TrimPrefix(out, "```")
-	out = strings.TrimPrefix(out, "```")
-
-	var rec Recommendation
-	if err := json.Unmarshal([]byte(out), &rec); err != nil {
-		panic(err)
-	}
+	// 추천 서비스 호출
+	rec, _ := llm.Recommend(ctx, profile)
 
 	// 출력
 	fmt.Println(rec.Summary)
@@ -66,5 +43,4 @@ func main() {
 			fmt.Printf("	%d, %s\n", i+1, s)
 		}
 	}
-	fmt.Printf("\n", rec.Notice)
 }
