@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT 커리어 추천</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #fff; --text: #1b1f27; --muted: #6b7380;
+    --line: #e3e6eb; --accent: #3b6cf6; --accent-soft: #e8eefe; --danger: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --card: #1e2128; --text: #e8eaee; --muted: #9aa2b0;
+      --line: #2e333c; --accent: #7c9cff; --accent-soft: #252d45; --danger: #ff7b6b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.6 system-ui, -apple-system, "Malgun Gothic", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  form, .card { background: var(--card); border: 1px solid var(--line);
+                border-radius: 12px; padding: 20px; }
+  label { display: block; font-weight: 600; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 13px; }
+  input, textarea { width: 100%; padding: 10px 12px; font: inherit; color: var(--text);
+                    background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  textarea { resize: vertical; min-height: 72px; }
+  button { margin-top: 20px; width: 100%; padding: 12px; font: inherit; font-weight: 600;
+           color: #fff; background: var(--accent); border: 0; border-radius: 8px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  #status { margin: 20px 0; color: var(--muted); }
+  #status.error { color: var(--danger); }
+  #result { margin-top: 24px; display: grid; gap: 16px; }
+  .summary { background: var(--accent-soft); border-radius: 12px; padding: 16px 20px; }
+  .card h2 { margin: 0; font-size: 19px; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .fit { color: var(--accent); font-weight: 600; letter-spacing: 1px; }
+  .meta { color: var(--muted); font-size: 14px; margin: 2px 0 10px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tag { background: var(--accent-soft); color: var(--accent); padding: 2px 10px;
+         border-radius: 999px; font-size: 13px; }
+  h3 { font-size: 14px; color: var(--muted); margin: 14px 0 4px; }
+  ol { margin: 0; padding-left: 20px; }
+  .risk { color: var(--muted); font-size: 14px; }
+  .notice { color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>IT 커리어 추천</h1>
+  <p class="sub">내 상황을 입력하면 맞는 IT 직무와 준비 계획을 알려드려요.</p>
+
+  <form id="form">
+    <label for="age">나이</label>
+    <input id="age" type="number" min="15" max="70" required>
+
+    <label for="education">학력 <span class="hint">예: 경영학 학사, 고졸</span></label>
+    <input id="education" maxlength="100" required>
+
+    <label for="experience">경력 <span class="hint">없으면 "없음"</span></label>
+    <textarea id="experience" maxlength="500" required></textarea>
+
+    <label for="skills">보유 스킬 <span class="hint">선택, 쉼표로 구분</span></label>
+    <input id="skills" placeholder="엑셀, Python">
+
+    <label for="goal">목표</label>
+    <textarea id="goal" maxlength="500" required placeholder="예: 1년 안에 백엔드 개발자로 이직"></textarea>
+
+    <button id="submit" type="submit">추천 받기</button>
+  </form>
+
+  <div id="status" role="status"></div>
+  <div id="result"></div>
+</main>
+
+<script>
+const form = document.getElementById('form');
+const btn = document.getElementById('submit');
+const statusEl = document.getElementById('status');
+const resultEl = document.getElementById('result');
+
+// 요소 생성 헬퍼: 텍스트는 항상 textContent로 넣어 XSS를 막는다
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function renderCard(c) {
+  const card = el('div', 'card');
+
+  const head = el('div', 'head');
+  head.append(el('h2', '', c.role));
+  const fit = Math.max(0, Math.min(5, c.fit | 0));
+  head.append(el('span', 'fit', '★'.repeat(fit) + '☆'.repeat(5 - fit)));
+  card.append(head);
+
+  card.append(el('div', 'meta', '예상 준비 기간 약 ' + c.months + '개월'));
+  card.append(el('p', '', c.reason));
+
+  if (c.skills && c.skills.length) {
+    card.append(el('h3', '', '필요 역량'));
+    const tags = el('div', 'tags');
+    c.skills.forEach(s => tags.append(el('span', 'tag', s)));
+    card.append(tags);
+  }
+  if (c.steps && c.steps.length) {
+    card.append(el('h3', '', '단계별 준비 계획'));
+    const ol = el('ol');
+    c.steps.forEach(s => ol.append(el('li', '', s)));
+    card.append(ol);
+  }
+  if (c.risks) {
+    card.append(el('h3', '', '유의할 점'));
+    card.append(el('div', 'risk', c.risks));
+  }
+  return card;
+}
+
+function render(rec) {
+  resultEl.replaceChildren();
+  if (rec.summary) resultEl.append(el('div', 'summary', rec.summary));
+  (rec.careers || []).forEach(c => resultEl.append(renderCard(c)));
+  if (rec.notice) resultEl.append(el('p', 'notice', rec.notice));
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    age: Number(document.getElementById('age').value),
+    education: document.getElementById('education').value.trim(),
+    experience: document.getElementById('experience').value.trim(),
+    skills: document.getElementById('skills').value
+      .split(',').map(s => s.trim()).filter(Boolean),
+    goal: document.getElementById('goal').value.trim(),
+  };
+
+  btn.disabled = true;
+  statusEl.className = '';
+  statusEl.textContent = '추천을 만들고 있어요. 최대 1분 정도 걸릴 수 있어요…';
+  resultEl.replaceChildren();
+
+  try {
+    const res = await fetch('/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '요청에 실패했습니다.');
+    statusEl.textContent = '';
+    render(data);
+  } catch (err) {
+    statusEl.className = 'error';
+    statusEl.textContent = err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
