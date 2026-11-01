@@ -1,0 +1,22 @@
+{
+  "id": "eip",
+  "name": "정보처리기사",
+  "eligibility": [
+    { "path": "산업기사+경력", "requiresCertificates": ["정보처리산업기사"], "experienceYears": 2 }
+  ],
+  "stages": ["필기", "실기"],
+  "subjects": [
+    { "name": "소프트웨어 설계", "stage": "필기", "baseHours": 20 },
+    { "name": "소프트웨어 개발", "stage": "필기", "baseHours": 20 },
+    { "name": "데이터베이스 구축", "stage": "필기", "baseHours": 25 },
+    { "name": "프로그래밍 언어 활용", "stage": "필기", "baseHours": 25 },
+    { "name": "정보시스템 구축관리", "stage": "필기", "baseHours": 15 },
+    { "name": "실기 필답형 대비", "stage": "실기", "baseHours": 80 }
+  ],
+  "source": {
+    "url": "https://www.q-net.or.kr",
+    "checkedAt": "2026-10-31",
+    "verified": false,
+    "note": "응시자격은 사용자 제공 정보. 일정과 baseHours는 임시값이며 큐넷으로 검증 필요."
+  }
+}
