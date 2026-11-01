@@ -62,5 +62,9 @@ func (l *LLM) Recommend(ctx context.Context, profile UserProfile) (*Recommendati
 		panic(err)
 	}
 
+	if len(rec.Careers) == 0 {
+		return nil, fmt.Errorf("추천 결과가 비어있어요..", out)
+	}
+
 	return &rec, nil
 }
