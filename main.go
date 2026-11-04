@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 	"google.golang.org/genai"
 )
 
@@ -26,13 +27,15 @@ func main() {
 
 	s := &Server{llm: &LLM{client: client}}
 
+	limiter := NewIPLimiter(rate.Every(30*time.Second), 3)
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/recommend", s.handleRecommend)
+	mux.Handle("/api/recommend", limiter.Middleware(http.HandlerFunc(s.handleRecommend)))
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
 	srv := &http.Server{
 		Addr:              ":8080",
-		Handler:           mux,
+		Handler:           withCORS(mux),
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      90 * time.Second,
 	}
