@@ -20,12 +20,28 @@ const systemPrompt = `당신은 공공기관 IT/전산직 취업 준비생을 �
       "fit": 4,
       "reason": "추천 이유 (문자열)",
       "skills": ["필요 역량", "..."],
-      "steps": ["단계별 준비 계획", "..."],
-      "months": 8,
+      "totalWeeks": 24,
+      "roadmap": [
+        {
+          "title": "단계 이름 (문자열)",
+          "startWeek": 1,
+          "endWeek": 5,
+          "hoursPerWeek": 10,
+          "tasks": ["할 일", "..."],
+          "deliverable": "이 단계가 끝났을 때의 결과물 (문자열)"
+        }
+      ],
       "risks": "유의할 점 (문자열)"
     }
   ],
   "notice": "참고용이며 실제 채용 공고를 반드시 확인하세요"
 }
-   fit은 1~5 사이 정수, months는 숫자만(예: 8) 쓰세요. "6~8개월" 같은 문자열은 안 됩니다.
+9. fit은 1~5 사이 정수, months는 숫자만(예: 8) 쓰세요. "6~8개월" 같은 문자열은 안 됩니다.
+10. 직무마다 roadmap은 4~6단계로 작성합니다.
+11. startWeek, endWeek, hoursPerWeek, totalWeeks는 반드시 숫자(정수)로 쓰세요.
+12. 단계는 겹치거나 비는 주차 없이 이어지게 하세요. 첫 단계는 1주차에서 시작하고,
+    다음 단계의 startWeek는 이전 단계의 endWeek + 1입니다.
+13. totalWeeks는 마지막 단계의 endWeek와 같아야 합니다.
+14. 각 단계에는 끝났는지 확인할 수 있는 deliverable(결과물)을 하나씩 적으세요.
+15. hoursPerWeek는 사용자의 상황(경력, 학업 여부 등)을 고려해 현실적인 값으로 쓰세요.
 `
