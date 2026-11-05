@@ -18,11 +18,21 @@ type Recommendation struct {
 
 // 커리어 방향 출력
 type CareerPath struct {
-	Role   string   `json:"role"`   // 추천 직무
-	Fit    int      `json:"fit"`    // 적합도 1~5
-	Reason string   `json:"reason"` // 추천 사유
-	Skills []string `json:"skills"` // 필요 역량
-	Steps  []string `json:"steps"`  // 단계별 준비 계획
-	Months int      `json:"months"` // 예상 준비 기간
-	Risks  string   `json:"risks"`  // 위험도
+	Role       string   `json:"role"`       // 추천 직무
+	Fit        int      `json:"fit"`        // 적합도 1~5
+	Reason     string   `json:"reason"`     // 추천 사유
+	Skills     []string `json:"skills"`     // 필요 역량
+	TotalWeeks int      `json:"totalWeeks"` // 전체 기간(주)
+	Roadmap    []Phase  `json:"roadmap"`    // 로드맵
+	Risks      string   `json:"risks"`      // 위험도
+}
+
+// 로드맵 단계
+type Phase struct {
+	Title        string   `json:"title"`        // 로드맵 제목
+	StartWeek    int      `json:"startWeek"`    // 시작 주차
+	EndWeek      int      `json:"endWeek"`      // 종료 주차
+	HoursPerWeek int      `json:"hoursPerWeek"` // 주당 학습 시간
+	Tasks        []string `json:"tasks"`        // 로드맵 단계마다 할 일
+	Deliverable  string   `json:"deliverable"`  // 결과물
 }
